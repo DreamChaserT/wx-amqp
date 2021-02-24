@@ -1,4 +1,4 @@
-package public
+package wxamqp
 
 // WxAmqp 主要功能类,用于操作消息队列
 type WxAmqp struct {

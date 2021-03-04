@@ -15,14 +15,30 @@ instance := wxamqp.NewWxAmqp("guest", "guest", "127.0.0.1", 5672)
 ```
 channel := instance.GetChannel()
 ```
+- 创建消息队列
+```
+qName, err := channel.DeclareQueue("队列名称", true, false)
+```
+- 创建交换机
+```
+err := channel.DeclareExchange("交换机名称", "direct", false, false)
+```
+- 绑定队列至交换机
+```
+err := channel.Bind("队列名称", "routingKey", "交换机名称")
+```
+- 解绑队列与交换机
+```
+err := channel.Unbind("队列名称", "routingKey", "交换机名称")
+```
 - 发送消息至指定队列
 ```
-err := channel.SendToQueue("queue_name", "msg content")
+err := channel.SendToQueue("队列名称", "msg content")
 ```
 - 监听队列,获取数据(手动ACK)
 ```
 # consumerId 必须唯一
-deliveryChan := channel.AddConsumer("queue_name", "consumerId", 1)
+deliveryChan := channel.AddConsumer("队列名称", "consumerId", 1)
 go func() {
     for {
         data, ok := <-deliveryChan

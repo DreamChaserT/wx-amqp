@@ -8,6 +8,9 @@ import (
 	"github.com/streadway/amqp"
 )
 
+// ErrDisconnect channel 断线异常
+var ErrDisconnect = errors.New("channel 断线")
+
 // AmqpChannel channel
 type AmqpChannel struct {
 	connection **amqp.Connection
@@ -119,7 +122,44 @@ func (a *AmqpChannel) SendToQueue(queueName string, body string) error {
 			Body:        []byte(body),
 		})
 	}
-	return errors.New("channel 断线")
+	return ErrDisconnect
+}
+
+// DeclareQueue 创建队列
+func (a *AmqpChannel) DeclareQueue(queueName string, durable bool, autoDelete bool) (string, error) {
+	if nil != a.c {
+		q, err := a.c.QueueDeclare(queueName, durable, autoDelete, false, false, nil)
+		if nil == err {
+			return q.Name, nil
+		}
+		return "", err
+	}
+	return "", ErrDisconnect
+}
+
+// DeclareExchange 创建Exchange
+// kind direct fanout topic headers
+func (a *AmqpChannel) DeclareExchange(exchangeName, kind string, durable, autoDelete bool) error {
+	if nil != a.c {
+		return a.c.ExchangeDeclare(exchangeName, kind, durable, autoDelete, false, false, nil)
+	}
+	return ErrDisconnect
+}
+
+// Bind 绑定queue至exchange
+func (a *AmqpChannel) Bind(queueName string, routingKey string, exchangeName string) error {
+	if nil != a.c {
+		return a.c.QueueBind(queueName, routingKey, exchangeName, false, nil)
+	}
+	return ErrDisconnect
+}
+
+// Unbind 解绑queue与exchange
+func (a *AmqpChannel) Unbind(queueName string, routingKey string, exchangeName string) error {
+	if nil != a.c {
+		return a.c.QueueUnbind(queueName, routingKey, exchangeName, nil)
+	}
+	return ErrDisconnect
 }
 
 // AddConsumer 消费队列数据 手动ack

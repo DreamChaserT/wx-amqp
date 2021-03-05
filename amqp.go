@@ -2,22 +2,18 @@ package wxamqp
 
 // WxAmqp 主要功能类,用于操作消息队列
 type WxAmqp struct {
-	// amqp 连接信息
-	username string
-	password string
-	host     string
-	port     int
-	c        *AmqpConnection
+	c *AmqpConnection
 }
 
 // NewWxAmqp 创建一个新的连接实例
 func NewWxAmqp(username string, password string, host string, port int) *WxAmqp {
+	return NewWxAmqpWithVhost(username, password, host, port, "/")
+}
+
+// NewWxAmqpWithVhost 创建一个新的连接实例,带有virtual host
+func NewWxAmqpWithVhost(username string, password string, host string, port int, vhost string) *WxAmqp {
 	return &WxAmqp{
-		username: username,
-		password: password,
-		host:     host,
-		port:     port,
-		c:        NewAmqpConnection(username, password, host, port),
+		c: NewAmqpConnection(username, password, host, port, "/"+vhost),
 	}
 }
 

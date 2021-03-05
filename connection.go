@@ -14,6 +14,7 @@ type AmqpConnection struct {
 	password string
 	host     string
 	port     int
+	vhost    string
 
 	// 真实的连接
 	c *amqp.Connection
@@ -23,7 +24,7 @@ type AmqpConnection struct {
 
 // 执行连接
 func (a *AmqpConnection) connect() error {
-	connection, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s:%d", a.username, a.password, a.host, a.port))
+	connection, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s:%d%s", a.username, a.password, a.host, a.port, a.vhost))
 	if nil != err {
 		return err
 	}
@@ -84,12 +85,13 @@ func (a *AmqpConnection) Disconnect() {
 }
 
 // NewAmqpConnection new
-func NewAmqpConnection(username string, password string, host string, port int) *AmqpConnection {
+func NewAmqpConnection(username string, password string, host string, port int, vhost string) *AmqpConnection {
 	instance := &AmqpConnection{
 		username:    username,
 		password:    password,
 		host:        host,
 		port:        port,
+		vhost:       vhost,
 		autoConnect: true,
 	}
 	instance.monitorConnect()

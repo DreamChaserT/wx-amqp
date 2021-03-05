@@ -114,15 +114,20 @@ func (a *AmqpChannel) Close() {
 	}
 }
 
-// SendToQueue 发送数据至指定队列
-func (a *AmqpChannel) SendToQueue(queueName string, body string) error {
+// SendToExchange 发送数据至指定交换机
+func (a *AmqpChannel) SendToExchange(exchangeName string, routingKey string, body string) error {
 	if nil != a.c {
-		return a.c.Publish("", queueName, false, false, amqp.Publishing{
+		return a.c.Publish(exchangeName, routingKey, false, false, amqp.Publishing{
 			ContentType: "text/plain",
 			Body:        []byte(body),
 		})
 	}
 	return ErrDisconnect
+}
+
+// SendToQueue 发送数据至指定队列
+func (a *AmqpChannel) SendToQueue(queueName string, body string) error {
+	return a.SendToExchange("", queueName, body)
 }
 
 // DeclareQueue 创建队列

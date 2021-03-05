@@ -10,6 +10,7 @@ go get -u github.com/DreamChaserT/wx-amqp
 - 连接服务器
 ```
 instance := wxamqp.NewWxAmqp("guest", "guest", "127.0.0.1", 5672)
+instance := wxamqp.NewWxAmqpWithVhost("guest", "guest", "127.0.0.1", 5672,"vhost")
 ```
 - 获取连接通道
 ```
@@ -34,6 +35,10 @@ err := channel.Unbind("队列名称", "routingKey", "交换机名称")
 - 发送消息至指定队列
 ```
 err := channel.SendToQueue("队列名称", "msg content")
+```
+- 发送消息至指定交换机
+```
+err := channel.SendToExchange("交换机名称","routingKey", "msg content")
 ```
 - 监听队列,获取数据(手动ACK)
 ```

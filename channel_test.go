@@ -4,15 +4,21 @@ import (
 	"fmt"
 	"log"
 	"testing"
+	"time"
 )
 
-func GetChannle() *AmqpChannel {
+func GetChannel() *AmqpChannel {
 	instance := NewWxAmqp("guest", "guest", "127.0.0.1", 5672)
 	return instance.GetChannel()
 }
 
+func TestGetChannel2(t *testing.T) {
+	NewWxAmqpWithVhost("guest", "guest", "127.0.0.1", 5672, "tku")
+	time.Sleep(time.Second * 10)
+}
+
 func TestAmqpChannel_DeclareQueue(t *testing.T) {
-	channel := GetChannle()
+	channel := GetChannel()
 
 	qName, err := channel.DeclareQueue("DeclareQueueNameTT", true, true)
 	if nil != err {
@@ -44,7 +50,7 @@ func TestAmqpChannel_DeclareQueue(t *testing.T) {
 }
 
 func TestAmqpChannel_DeclareExchange(t *testing.T) {
-	channel := GetChannle()
+	channel := GetChannel()
 
 	err := channel.DeclareExchange("DeclareExchangeD", "direct", false, false)
 	if nil != err {
@@ -90,7 +96,7 @@ func TestAmqpChannel_DeclareExchange(t *testing.T) {
 }
 
 func TestBindAndUnBind(t *testing.T) {
-	channel := GetChannle()
+	channel := GetChannel()
 	channel.DeclareExchange("bindExchange", "direct", false, true)
 	channel.DeclareQueue("bindQueue", false, true)
 	err := channel.Bind("bindQueue", "*", "bindExchange")
@@ -105,4 +111,12 @@ func TestBindAndUnBind(t *testing.T) {
 		log.Println(err)
 		t.FailNow()
 	}
+}
+
+func TestSendExchange(t *testing.T) {
+	channel := GetChannel()
+	channel.SendToQueue("PUSH_SERVICE_QUEUE", "hello")
+	err := channel.SendToExchange("tb", "acc", "hello")
+	log.Println(err)
+	time.Sleep(time.Second * 10)
 }

@@ -39,7 +39,7 @@ func (a *AmqpConnection) monitorConnect() {
 	go func(instance *AmqpConnection) {
 		for {
 			// 连接已停止,终止监控任务
-			if !a.autoConnect {
+			if !instance.autoConnect {
 				break
 			}
 
